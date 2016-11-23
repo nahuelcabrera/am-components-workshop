@@ -34,4 +34,5 @@ src/vendor
 #IDEs
 .idea
 
-
+build
+src/app/**/*.html

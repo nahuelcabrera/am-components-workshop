@@ -10,7 +10,7 @@
             controller: TodosController,
 
 
-            templateUrl: ""
+            templateUrl: "todos/todos.html"
         });
 
 

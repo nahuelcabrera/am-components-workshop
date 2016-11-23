@@ -1,3 +1,3 @@
-//
-   Created by Josue on 22/11/16.
-
+ul
+    li(ng-repeat='todo in $ctrl.todos')
+        todo(item='todo', on-change='$ctrl.onComplete($locals);', on-remove='$ctrl.onDelete($locals);')

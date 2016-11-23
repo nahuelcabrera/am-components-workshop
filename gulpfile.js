@@ -6,14 +6,14 @@ const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
 const plugs = gulpLoadPlugins();
 
-const argv = require('yargs').argv;
 const env = process.env.NODE_ENV || 'local';
+const merge = require('merge-stream');
+const eventStream = require('event-stream');
 let optimize = false;
 
 
-
 if (env === 'staging' || env === 'production') {
-    log('static files will be optimized!!');
+
     optimize = true;
 }
 
@@ -21,38 +21,87 @@ if (env === 'staging' || env === 'production') {
  * Compiling jade into html for components.
  */
 gulp.task('compile-jade', () => {
-    log('compiling jade into html');
 
 
     return gulp
         .src(`${config.appFolder }**/*.jade`)
-        .pipe(plugins.jade())
-        .pipe(plugins.htmlmin())
+        .pipe(plugs.jade())
+        .pipe(plugs.htmlmin())
         .pipe(gulp.dest(config.appFolder));
 });
 
 
-gulp.task('template-cache', ['compile-jade'], () => {
 
-
-    return gulp.src(`${config.appFolder }**/*.html`)
-        .pipe(plugins.angularTemplatecache(config.templateCache.file, config.templateCache.options))
-        .pipe(gulp.dest(config.appFolder));
-});
 
 
 /**
  * Compiling scss into css.
  */
 gulp.task('styles-app', () => {
-    log('compiling app scss into css');
+
     return gulp
         .src(config.mainscss)
-        .pipe(plugins.sass())
-        .pipe(plugins.rename(`${config.projectName}.css`))
-        .pipe(plugins.if(optimize, plugins.combineMq()))
-        .pipe(plugins.if(optimize, plugins.csso()))
-        .pipe(plugins.if(optimize, plugins.rev()))
+        .pipe(plugs.sass())
+        .pipe(plugs.rename(`${config.projectName}.css`))
+        .pipe(plugs.if(optimize, plugs.combineMq()))
+        .pipe(plugs.if(optimize, plugs.csso()))
+        .pipe(plugs.if(optimize, plugs.rev()))
         .pipe(gulp.dest(config.build));
 });
+
+
+/**
+ * Concat vendor js files.
+ */
+gulp.task('scripts-lib', () => {
+    const mainBowerFiles = require('main-bower-files');
+    return gulp
+        .src(mainBowerFiles('**/*.js'))
+        //.pipe(plugs.debug())
+        .pipe(plugs.concat(`${config.projectName }-lib.js`))
+        .pipe(plugs.if(optimize, plugs.uglify()))
+        .pipe(plugs.if(optimize, plugs.stripDebug()))
+        .pipe(plugs.if(optimize, plugs.rename({extname: '.min.js'})))
+        .pipe(gulp.dest(config.build));
+});
+
+gulp.task('scripts-app', () => {
+
+
+    var scriptsStream = gulp.src(config.appFolder + '**/*.js'),
+        templateCacheStream = gulp.src(config.appFolder + '**/*.html')
+            .pipe(plugs.angularTemplatecache(config.templateCache.file, config.templateCache.options));
+
+    return eventStream.merge(templateCacheStream, scriptsStream)
+        .pipe(plugs.order(config.jsOrder))
+        .pipe(plugs.concat(`${config.projectName}.js`))
+        .pipe(plugs.if(optimize, plugs.uglify()))
+        .pipe(plugs.if(optimize, plugs.stripDebug()))
+        .pipe(plugs.if(optimize, plugs.rename({extname: '.min.js'})))
+        .pipe(gulp.dest(config.build));
+
+});
+
+
+gulp.task('inject', ['build'], () => {
+
+    const series = require('stream-series');
+    // It's not necessary to read the files (will speed up things), we're only after their paths:
+    const scriptLib = gulp.src([`${config.build}*lib*.js`], {read: false});
+    const styleApp = gulp.src([`${config.build}*.css`, `!${config.build}*lib*.css`], {read: false});
+    const scriptApp = gulp.src([`${config.build}*.js`, `!${config.build}*lib*.js`], {read: false});
+    const seriesStreams = series(scriptLib, styleApp, scriptApp);
+
+    return gulp.src(`${config.index}`)
+        .pipe(plugs.inject(seriesStreams))
+        .pipe(gulp.dest(config.src));
+});
+gulp.task('default', ['inject']);
+
+/**
+ * Build!!!!
+ */
+gulp.task('build', ['styles-app', 'scripts-lib', 'scripts-app']);
+
+
 

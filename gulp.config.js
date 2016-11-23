@@ -7,42 +7,39 @@ module.exports = function () {
     const pkg = require('./package.json');
 
     const server = './server/';
-
-    const scssfolder = `${client }scss/`;
-    const mainscss = `${scssfolder }main.scss`;
+    const src = './src/'
+    const scssfolder = `${src }scss/`;
+    const mainscss = `${scssfolder }styles.scss`;
     const build = './build/';
-    const appFolder = `${client}app/`;
+    const appFolder = `${src}app/`;
+    const index = `${src }index.html`;
 
     const config = {
         projectName: pkg.name,
-        version: pkg.version,
         appFolder,
         app: `${appFolder }app.module.js`,
         scssfolder,
         mainscss,
         angularRootApp: `${appFolder}core/`,
         build,
-        images: `${client }images/`,
+        index,
+        src,
+        images: `${src }images/`,
         fonts: `${scssfolder }fonts/`,
-        vendorfolder: `${client }vendor/`,
+        vendorfolder: `${src }vendor/`,
         templateCache: {
             file: 'app.templates.js',
             options: {
-                standalone: true,
-                module: 'app.templates',
-                templateHeader: 'export const AppTemplates = ' +
-                ' angular.module("<%= module %>"<%= standalone %>)' +
-                '.run(["$templateCache", function($templateCache) {',
-                templateFooter: '}]).name;'
+                module: 'app',
+                moduleSystem: "IIFE"
             }
         },
         jsOrder: ['**/app.module.js', '**/*.module.js', '**/*.js'],
-        browserReloadDelay: 1000,
         files: {
-            sass: `${client}**/*.scss`,
-            js: [`${client}**/*.js`, `!${client}**/*.templates.js`],
-            html: `${client}**/*.html`,
-            jade: `${client}**/*.jade`
+            sass: `${src}**/*.scss`,
+            js: [`${src}**/*.js`, `!${src}**/*.templates.js`],
+            html: `${src}**/*.html`,
+            jade: `${src}**/*.jade`
 
         }
     };
