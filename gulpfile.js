@@ -31,9 +31,6 @@ gulp.task('compile-jade', () => {
 });
 
 
-
-
-
 /**
  * Compiling scss into css.
  */
@@ -65,7 +62,7 @@ gulp.task('scripts-lib', () => {
         .pipe(gulp.dest(config.build));
 });
 
-gulp.task('scripts-app', () => {
+gulp.task('scripts-app', ['compile-jade'], () => {
 
 
     var scriptsStream = gulp.src(config.appFolder + '**/*.js'),
@@ -83,7 +80,7 @@ gulp.task('scripts-app', () => {
 });
 
 
-gulp.task('inject', ['build'], () => {
+gulp.task('inject', ['bundle'], () => {
 
     const series = require('stream-series');
     // It's not necessary to read the files (will speed up things), we're only after their paths:
@@ -92,10 +89,18 @@ gulp.task('inject', ['build'], () => {
     const scriptApp = gulp.src([`${config.build}*.js`, `!${config.build}*lib*.js`], {read: false});
     const seriesStreams = series(scriptLib, styleApp, scriptApp);
 
-    return gulp.src(`${config.index}`)
-        .pipe(plugs.inject(seriesStreams))
-        .pipe(gulp.dest(config.src));
+    return gulp.src(`${config.build}index.html`)
+        .pipe(plugs.inject(seriesStreams, {relative: true}))
+        .pipe(gulp.dest(config.build));
 });
+
+gulp.task('bundle', ['build'], () => {
+
+    return gulp.src(`${config.index}`)
+        .pipe(gulp.dest(config.build));
+});
+
+
 gulp.task('default', ['inject']);
 
 /**
@@ -104,4 +109,8 @@ gulp.task('default', ['inject']);
 gulp.task('build', ['styles-app', 'scripts-lib', 'scripts-app']);
 
 
+gulp.task('watch', ()=> {
 
+    gulp.watch(config.files.jade, ['scripts-app']);
+    gulp.watch(config.files.js, ['scripts-app']);
+});

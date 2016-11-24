@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <title>Almundo components workshop</title>
     <!-- inject:css -->
-    <link rel="stylesheet" href="/build/am-components-workshop.css">
     <!-- endinject -->
 </head>
 <body>
 <div>
-    <todos></todos>
+    <todos-root></todos-root>
 </div>
+
+
 <!-- inject:js -->
-<script src="/build/am-components-workshop-lib.js"></script>
-<script src="/build/am-components-workshop.js"></script>
 <!-- endinject -->
+<script>
+    angular.bootstrap(document.documentElement, ['app']);
+</script>
 </body>
 </html>

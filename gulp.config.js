@@ -30,7 +30,7 @@ module.exports = function () {
         templateCache: {
             file: 'app.templates.js',
             options: {
-                module: 'app',
+                module: 'todos',
                 moduleSystem: "IIFE"
             }
         },

@@ -6,40 +6,40 @@
 
     angular
         .module('todos')
-        .component('todos', {
+        .component('todosRoot', {
             controller: TodosController,
 
 
-            templateUrl: "todos/todos.html"
+            templateUrl: "todos/todos-root.html"
         });
 
 
-    TodosController.$inject = ['TodoService'];
+    TodosController.$inject = ['TodosService'];
 
     /* @ngInject */
-    function TodosController(TodoService) {
+    function TodosController(TodosService) {
 
         var _self = this;
-        this.todoService = TodoService;
-
 
         this.$onInit = function () {
-            this.todos = this.todoService.getTodos();
-
+            _self.todos = TodosService.getTodos();
         };
 
-        this.addTodo = function (label) {
-            _self.todos = _self.todos.push({label, id: _self.todos.length + 1});
+        this.addTodo = function ($event) {
+            var label = $event.label;
+            _self.todos.push({label, id: _self.todos.length + 1});
         };
 
-        this.completeTodo = function (todo) {
+        this.completeTodo = function ($event) {
+           var todo = $event.todo;
             _self.todos = _self.todos.map(function (item) {
                 return item.id === todo.id ? Object.assign({}, item, {complete: true}) : item
             });
 
         };
 
-        this.removeTodo = function (todo) {
+        this.removeTodo = function ($event) {
+            var todo = $event.todo;
             _self.todos = _self.todos.filter(function(item){
                return  todo.id !== item.id;
             });

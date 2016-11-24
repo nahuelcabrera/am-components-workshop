@@ -4,7 +4,9 @@
   "description": "Another one...",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "gulp",
+    "start": "lite-server -c bs-config.json"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "gulp-strip-debug": "^1.1.0",
     "gulp-uglify": "^1.5.3",
     "jade": "^1.11.0",
+    "lite-server": "^2.2.2",
     "main-bower-files": "^2.13.1",
     "merge-stream": "^1.0.0",
     "stream-series": "^0.1.1"
