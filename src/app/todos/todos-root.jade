@@ -1,3 +1,4 @@
 div
     todo-form(new-todo='$ctrl.newTodo', on-add='$ctrl.addTodo($event);')
+    todo-alert(todos-ammount="$ctrl.todos.length")
     todo-list(todos='$ctrl.todos', on-complete='$ctrl.completeTodo($event);', on-delete='$ctrl.removeTodo($event);')
